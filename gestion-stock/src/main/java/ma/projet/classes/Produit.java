@@ -1,15 +1,14 @@
-package org.example.classes;
+package ma.projet.classes;
 
 
 import javax.persistence.*;
-import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "produit")
-@NamedQueries({
-        @NamedQuery(name = "Produit.findPrixSup100", query = "SELECT p FROM Produit p WHERE p.prix > :prix")
-})
+@NamedQuery(
+        name="Produit.findByPriceGreaterThan100",
+        query="select p from Produit p where p.prix > :prix"
+)
 public class Produit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

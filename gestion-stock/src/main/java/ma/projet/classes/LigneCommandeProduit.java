@@ -1,9 +1,8 @@
-package org.example.classes;
+package ma.projet.classes;
 
 import javax.persistence.*;
 
 @Entity
-@Table(name = "ligne_commande_produit")
 public class LigneCommandeProduit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -1,10 +1,9 @@
-package org.example.classes;
+package ma.projet.classes;
 
 import javax.persistence.*;
 import java.util.Set;
 
 @Entity
-@Table(name = "categorie")
 public class Categorie {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

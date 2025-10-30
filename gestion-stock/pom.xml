@@ -11,45 +11,70 @@
   <url>http://maven.apache.org</url>
 
   <properties>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>11</maven.compiler.source>
-    <maven.compiler.target>11</maven.compiler.target>
   </properties>
-
+  <build>
+  <plugins>
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-compiler-plugin</artifactId>
+      <version>3.11.0</version>
+      <configuration>
+        <release>17</release>
+      </configuration>
+    </plugin>
+  </plugins>
+  </build>
   <dependencies>
-    <!-- Hibernate ORM -->
+    <!-- Spring Context pour l'injection de dépendances -->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+      <version>5.3.22</version>
+    </dependency>
+
+    <!-- Spring ORM pour l'intégration avec Hibernate -->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-orm</artifactId>
+      <version>5.3.22</version>
+    </dependency>
+
+    <!-- Hibernate Core pour le mapping objet-relationnel -->
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-core</artifactId>
-      <version>5.6.15.Final</version>
+      <version>5.6.12.Final</version>
     </dependency>
 
-    <!-- JPA API -->
-    <dependency>
-      <groupId>jakarta.persistence</groupId>
-      <artifactId>jakarta.persistence-api</artifactId>
-      <version>2.2.3</version>
-    </dependency>
-
-    <!-- MySQL Driver -->
+    <!-- MySQL Connector pour la connexion à la base de données -->
     <dependency>
       <groupId>mysql</groupId>
       <artifactId>mysql-connector-java</artifactId>
-      <version>8.0.33</version>
+      <version>8.0.29</version>
     </dependency>
 
-    <!-- SLF4J pour logs -->
+    <!-- Spring Transaction pour la gestion automatique des transactions -->
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-simple</artifactId>
-      <version>1.7.36</version>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-tx</artifactId>
+      <version>5.3.22</version>
     </dependency>
 
-    <!-- JUnit pour les tests -->
+    <!-- Validation API pour les annotations JPA -->
+    <dependency>
+      <groupId>javax.validation</groupId>
+      <artifactId>validation-api</artifactId>
+      <version>2.0.1.Final</version>
+    </dependency>
+
+    <!-- JUnit 5 -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
-      <version>5.9.2</version>
+      <version>5.9.3</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
