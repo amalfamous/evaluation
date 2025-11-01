@@ -6,82 +6,132 @@ import ma.projet.beans.Mariage;
 import ma.projet.service.FemmeService;
 import ma.projet.service.HommeService;
 import ma.projet.service.MariageService;
-import ma.projet.util.HibernateUtil;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.LocalDate;
+import java.util.List;
 
 /**
- * Hello world!
- *
+ * Main corrigé : utilise TransactionTemplate pour exécuter la logique
+ * à l'intérieur d'une transaction Spring (nécessaire pour getCurrentSession()).
  */
-public class App 
-{
+public class App {
     public static void main(String[] args) {
-        HommeService hs = new HommeService();
-        FemmeService fs = new FemmeService();
-        MariageService ms = new MariageService();
+        AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+        ctx.scan("ma.projet");
+        try {
+            ctx.refresh();
 
-        // Créer 10 femmes
-        Femme f1 = new Femme("RAMI", "SALIMA", "0661111111", "Casa", LocalDate.of(1970, 5, 15));
-        Femme f2 = new Femme("ALI", "AMAL", "0662222222", "Rabat", LocalDate.of(1975, 8, 20));
-        Femme f3 = new Femme("ALAOUI", "WAFA", "0663333333", "Fès", LocalDate.of(1980, 3, 10));
-        Femme f4 = new Femme("ALAMI", "KARIMA", "0664444444", "Marrakech", LocalDate.of(1968, 12, 5));
-        Femme f5 = new Femme("BENNANI", "FATIMA", "0665555555", "Tanger", LocalDate.of(1985, 7, 25));
-        Femme f6 = new Femme("IDRISSI", "LAILA", "0666666666", "Agadir", LocalDate.of(1978, 11, 30));
-        Femme f7 = new Femme("TAZI", "SAMIRA", "0667777777", "Meknès", LocalDate.of(1982, 4, 18));
-        Femme f8 = new Femme("FASSI", "NADIA", "0668888888", "Tétouan", LocalDate.of(1972, 9, 22));
-        Femme f9 = new Femme("SEFRIOUI", "HAFSA", "0669999999", "Oujda", LocalDate.of(1987, 1, 8));
-        Femme f10 = new Femme("ALAOUI", "MALIKA", "0660000000", "Safi", LocalDate.of(1965, 6, 14));
+            FemmeService femmeService = ctx.getBean(FemmeService.class);
+            HommeService hommeService = ctx.getBean(HommeService.class);
+            MariageService mariageService = ctx.getBean(MariageService.class);
 
-        fs.create(f1); fs.create(f2); fs.create(f3); fs.create(f4); fs.create(f5);
-        fs.create(f6); fs.create(f7); fs.create(f8); fs.create(f9); fs.create(f10);
+            // Récupérer le transaction manager et créer un TransactionTemplate
+            PlatformTransactionManager txMgr = ctx.getBean(PlatformTransactionManager.class);
+            TransactionTemplate txTemplate = new TransactionTemplate(txMgr);
 
-        // Créer 5 hommes
-        Homme h1 = new Homme("SAFI", "SAID", "0671111111", "Casa", LocalDate.of(1965, 3, 10));
-        Homme h2 = new Homme("ALAMI", "AHMED", "0672222222", "Rabat", LocalDate.of(1970, 6, 15));
-        Homme h3 = new Homme("BENNANI", "YOUSSEF", "0673333333", "Fès", LocalDate.of(1968, 9, 20));
-        Homme h4 = new Homme("TAZI", "KARIM", "0674444444", "Marrakech", LocalDate.of(1975, 12, 5));
-        Homme h5 = new Homme("IDRISSI", "OMAR", "0675555555", "Tanger", LocalDate.of(1980, 2, 28));
+            // Exécuter toute la création/affichage dans une transaction
+            txTemplate.execute(status -> {
+                // ---------- 1) Création des 10 femmes ----------
+                Femme f1 = new Femme("RAMI", "SALIMA", "060000001", "Adresse 1", LocalDate.of(1972, 3, 10));
+                Femme f2 = new Femme("ALI", "AMAL", "060000002", "Adresse 2", LocalDate.of(1975, 5, 20));
+                Femme f3 = new Femme("ALAOUI", "WAFA", "060000003", "Adresse 3", LocalDate.of(1980, 11, 2));
+                Femme f4 = new Femme("ALAMI", "KARIMA", "060000004", "Adresse 4", LocalDate.of(1970, 9, 1));
+                Femme f5 = new Femme("BENJELLOUN", "NORA", "060000005", "Adresse 5", LocalDate.of(1985, 1, 15));
+                Femme f6 = new Femme("ERRAHMANI", "LAILA", "060000006", "Adresse 6", LocalDate.of(1978, 6, 7));
+                Femme f7 = new Femme("ZAHRAOUI", "FATIMA", "060000007", "Adresse 7", LocalDate.of(1968, 12, 22));
+                Femme f8 = new Femme("MANSOUR", "SARA", "060000008", "Adresse 8", LocalDate.of(1990, 8, 9));
+                Femme f9 = new Femme("OUFIR", "HIND", "060000009", "Adresse 9", LocalDate.of(1976, 4, 30));
+                Femme f10 = new Femme("KHALID", "IMANE", "060000010", "Adresse 10", LocalDate.of(1982, 2, 18));
 
-        hs.create(h1); hs.create(h2); hs.create(h3); hs.create(h4); hs.create(h5);
+                femmeService.create(f1);
+                femmeService.create(f2);
+                femmeService.create(f3);
+                femmeService.create(f4);
+                femmeService.create(f5);
+                femmeService.create(f6);
+                femmeService.create(f7);
+                femmeService.create(f8);
+                femmeService.create(f9);
+                femmeService.create(f10);
 
-        // Créer des mariages pour h1 (comme dans l'exemple)
-        ms.create(new Mariage(h1, f4, LocalDate.of(1989, 9, 3), LocalDate.of(1990, 9, 3), 0));
-        ms.create(new Mariage(h1, f1, LocalDate.of(1990, 9, 3), null, 4));
-        ms.create(new Mariage(h1, f2, LocalDate.of(1995, 9, 3), null, 2));
-        ms.create(new Mariage(h1, f3, LocalDate.of(2000, 11, 4), null, 3));
+                // ---------- 2) Création des 5 hommes ----------
+                Homme h1 = new Homme("SAID", "SAFI", "070000001", "AddrH1", LocalDate.of(1960, 2, 2)); // exemple
+                Homme h2 = new Homme("HADDAD", "MOHAMED", "070000002", "AddrH2", LocalDate.of(1965, 3, 3));
+                Homme h3 = new Homme("TOUIL", "YASSINE", "070000003", "AddrH3", LocalDate.of(1970, 4, 4));
+                Homme h4 = new Homme("RAISS", "AHMED", "070000004", LocalDate.of(1972, 5, 5));
+                Homme h5 = new Homme("BEN", "KARIM", "070000005", LocalDate.of(1976, 6, 6));
 
-        // Autres mariages
-        ms.create(new Mariage(h2, f5, LocalDate.of(1995, 5, 20), null, 3));
-        ms.create(new Mariage(h3, f1, LocalDate.of(2005, 3, 15), null, 1));
-        ms.create(new Mariage(h4, f2, LocalDate.of(2000, 8, 10), null, 2));
+                hommeService.create(h1);
+                hommeService.create(h2);
+                hommeService.create(h3);
+                hommeService.create(h4);
+                hommeService.create(h5);
 
-        // Tests
-        System.out.println("===== Liste des femmes =====");
-        fs.findAll().forEach(f -> System.out.println(f.getPrenom() + " " + f.getNom()));
+                // ---------- 3) Mariages pour SAFI SAID (h1) ----------
+                mariageService.create(new Mariage(h1, f1, LocalDate.of(1990, 9, 3), null, 4));
+                mariageService.create(new Mariage(h1, f2, LocalDate.of(1995, 9, 3), null, 2));
+                mariageService.create(new Mariage(h1, f3, LocalDate.of(2000, 11, 4), null, 3));
+                mariageService.create(new Mariage(h1, f4, LocalDate.of(1989, 9, 3), LocalDate.of(1990, 9, 3), 0));
 
-        System.out.println("\n===== Femme la plus âgée =====");
-        Femme oldest = fs.findOldestFemme();
-        System.out.println(oldest.getPrenom() + " " + oldest.getNom() + " - " + oldest.getDateNaissance());
+                // ---------- 4) Homme marié à 4 femmes (h2) ----------
+                mariageService.create(new Mariage(h2, f5, LocalDate.of(2001, 1, 1), null, 1));
+                mariageService.create(new Mariage(h2, f6, LocalDate.of(2002, 2, 2), null, 0));
+                mariageService.create(new Mariage(h2, f7, LocalDate.of(2003, 3, 3), null, 2));
+                mariageService.create(new Mariage(h2, f8, LocalDate.of(2004, 4, 4), null, 0));
 
-        System.out.println("\n===== Épouses de h1 entre 1990-2000 =====");
-        hs.getEpousesBetweenDates(h1, LocalDate.of(1990, 1, 1), LocalDate.of(2000, 12, 31))
-                .forEach(f -> System.out.println(f.getPrenom() + " " + f.getNom()));
+                // ---------- 5) Quelques autres mariages ----------
+                mariageService.create(new Mariage(h3, f9, LocalDate.of(1999, 5, 5), LocalDate.of(2000, 5, 5), 1));
+                mariageService.create(new Mariage(h3, f10, LocalDate.of(2005, 6, 6), null, 1));
 
-        System.out.println("\n===== Enfants de f1 entre 1990-2000 =====");
-        System.out.println("Nombre: " + fs.countChildrenBetweenDates(f1,
-                LocalDate.of(1990, 1, 1), LocalDate.of(2000, 12, 31)));
+                // -------------------------
+                // AFFICHAGE DES INFOS DEMANDÉES
+                // -------------------------
+                System.out.println("=== Liste des femmes ===");
+                List<Femme> allFemmes = femmeService.findAll();
+                allFemmes.forEach(f -> System.out.println(f.getNom() + " " + f.getPrenom() + " (né le : " + f.getDateNaissance() + ")"));
 
-        System.out.println("\n===== Femmes mariées au moins 2 fois =====");
-        fs.findFemmesMarriedAtLeastTwice()
-                .forEach(f -> System.out.println(f.getPrenom() + " " + f.getNom()));
+                Femme plusAgee = allFemmes.stream()
+                        .min((a, b) -> a.getDateNaissance().compareTo(b.getDateNaissance()))
+                        .orElse(null);
+                System.out.println("\nFemme la plus âgée : " + (plusAgee != null ? plusAgee.getNom() + " " + plusAgee.getPrenom() + " - " + plusAgee.getDateNaissance() : "Aucune"));
 
-        System.out.println("\n===== Hommes mariés à 4 femmes (1989-2001) =====");
-        System.out.println("Nombre: " + hs.countHommesMarriedTo4FemmesBetweenDates(
-                LocalDate.of(1989, 1, 1), LocalDate.of(2001, 12, 31)));
+                System.out.println("\nÉpouses de " + h1.getNom() + " " + h1.getPrenom() + " :");
+                List<Mariage> mariagesH1 = femmeService.getMariagesOfHomme(h1.getId());
+                for (Mariage m : mariagesH1) {
+                    System.out.println("- " + (m.getFemme() != null ? (m.getFemme().getNom() + " " + m.getFemme().getPrenom()) : "N/A")
+                            + "  (Début: " + (m.getDateDebut() != null ? m.getDateDebut().toString() : "") + ")");
+                }
 
-        System.out.println("\n===== Mariages de h1 avec détails =====");
-        hs.displayMariagesOfHomme(h1);
+                LocalDate d1 = LocalDate.of(1980, 1, 1);
+                LocalDate d2 = LocalDate.of(2010, 12, 31);
+                int nbEnfantsF1 = femmeService.getNombreEnfantsEntreDatesNative(f1.getId(), d1, d2);
+                System.out.println("\nNombre d'enfants de " + f1.getNom() + " " + f1.getPrenom() + " entre " + d1 + " et " + d2 + " : " + nbEnfantsF1);
 
-        HibernateUtil.shutdown();
-    }}
+                System.out.println("\nFemmes mariées 2 fois ou plus :");
+                List<Femme> femmesDeuxFois = femmeService.findFemmesMarriedAtLeastTwice();
+                if (femmesDeuxFois.isEmpty()) System.out.println("Aucune");
+                else femmesDeuxFois.forEach(f -> System.out.println("- " + f.getNom() + " " + f.getPrenom()));
+
+                LocalDate dd = LocalDate.of(1999, 1, 1);
+                LocalDate df = LocalDate.of(2025, 12, 31);
+                int nbHommes4Femmes = femmeService.countHommesMarriedToFourWomenBetweenDates(dd, df);
+                System.out.println("\nNombre d'hommes mariés à 4 femmes entre " + dd + " et " + df + " : " + nbHommes4Femmes);
+
+                System.out.println("\nMariages détaillés pour " + h1.getNom() + " " + h1.getPrenom() + " :\n");
+                System.out.println(femmeService.formatMariagesOfHommeForPrint(h1.getId()));
+
+                // return value for TransactionCallback (not used)
+                return null;
+            });
+
+        } catch (Exception e) {
+            System.err.println("Erreur lors de l'exécution : " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            ctx.close();
+        }
+    }
+}

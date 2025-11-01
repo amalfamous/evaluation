@@ -7,10 +7,6 @@ import java.util.Set;
 
 @Entity
 @Table(name = "femme")
-@NamedQuery(
-        name = "Femme.marriedAtLeastTwice",
-        query = "SELECT f FROM Femme f WHERE SIZE(f.mariages) >= 2"
-)
 public class Femme extends Personne {
 
     @OneToMany(mappedBy = "femme", cascade = CascadeType.ALL, orphanRemoval = true)

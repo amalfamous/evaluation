@@ -1,52 +1,72 @@
 package ma.projet.util;
 
-import org.hibernate.SessionFactory;
-import org.hibernate.cfg.Configuration;
-import java.io.FileInputStream;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.*;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.orm.hibernate5.HibernateTransactionManager;
+import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+import javax.sql.DataSource;
 import java.util.Properties;
 
+@Configuration
+@ComponentScan(basePackages = "ma.projet")
+@EnableTransactionManagement(proxyTargetClass = true)
+@PropertySource("classpath:application.properties")
 public class HibernateUtil {
-    private static SessionFactory sessionFactory;
+    @Value("${spring.datasource.driver-class-name}")
+    private String driverClassName;
 
-    static {
-        try {
-            Properties properties = new Properties();
-            properties.load(HibernateUtil.class.getClassLoader().getResourceAsStream("application.properties"));
+    @Value("${spring.datasource.url}")
+    private String url;
 
-            Configuration configuration = new Configuration();
+    @Value("${spring.datasource.username}")
+    private String username;
 
-            // Configuration de la base de données
-            configuration.setProperty("hibernate.connection.driver_class", properties.getProperty("db.driver"));
-            configuration.setProperty("hibernate.connection.url", properties.getProperty("db.url"));
-            configuration.setProperty("hibernate.connection.username", properties.getProperty("db.user"));
-            configuration.setProperty("hibernate.connection.password", properties.getProperty("db.password"));
+    @Value("${spring.datasource.password}")
+    private String password;
 
-            // Configuration Hibernate
-            configuration.setProperty("hibernate.dialect", properties.getProperty("hibernate.dialect"));
-            configuration.setProperty("hibernate.hbm2ddl.auto", properties.getProperty("hibernate.hbm2ddl.auto"));
-            configuration.setProperty("hibernate.show_sql", properties.getProperty("hibernate.show_sql"));
-            configuration.setProperty("hibernate.format_sql", properties.getProperty("hibernate.format_sql"));
+    @Value("${spring.jpa.properties.hibernate.dialect}")
+    private String hibernateDialect;
 
-            // Enregistrer les entités
-            configuration.addAnnotatedClass(ma.projet.beans.Personne.class);
-            configuration.addAnnotatedClass(ma.projet.beans.Homme.class);
-            configuration.addAnnotatedClass(ma.projet.beans.Femme.class);
-            configuration.addAnnotatedClass(ma.projet.beans.Mariage.class);
+    @Value("${spring.jpa.hibernate.ddl-auto}")
+    private String hibernateDdlAuto;
 
-            sessionFactory = configuration.buildSessionFactory();
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new ExceptionInInitializerError("Échec de l'initialisation de SessionFactory : " + e);
-        }
+    @Value("${spring.jpa.show-sql}")
+    private String showSql;
+
+    @Value("${spring.jpa.properties.hibernate.format_sql}")
+    private String formatSql;
+
+    @Bean
+    public DataSource dataSource() {
+        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        dataSource.setDriverClassName(driverClassName);
+        dataSource.setUrl(url);
+        dataSource.setUsername(username);
+        dataSource.setPassword(password);
+        return dataSource;
     }
 
-    public static SessionFactory getSessionFactory() {
+    @Bean
+    public LocalSessionFactoryBean sessionFactory() {
+        LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
+        sessionFactory.setDataSource(dataSource());
+        sessionFactory.setPackagesToScan("ma.projet.beans");
+        Properties hibernateProperties = new Properties();
+        hibernateProperties.put("hibernate.dialect", hibernateDialect);
+        hibernateProperties.put("hibernate.hbm2ddl.auto", hibernateDdlAuto);
+        hibernateProperties.put("hibernate.show_sql", showSql);
+        hibernateProperties.put("hibernate.format_sql", formatSql);
+
+        sessionFactory.setHibernateProperties(hibernateProperties);
         return sessionFactory;
     }
 
-    public static void shutdown() {
-        if (sessionFactory != null) {
-            sessionFactory.close();
-        }
+    @Bean
+    public HibernateTransactionManager transactionManager() {
+        HibernateTransactionManager txManager = new HibernateTransactionManager();
+        txManager.setSessionFactory(sessionFactory().getObject());
+        return txManager;
     }
 }

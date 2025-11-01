@@ -7,8 +7,9 @@ import java.time.LocalDate;
 @Table(name = "mariage")
 @NamedNativeQuery(
         name = "Mariage.countChildrenOfFemmeBetweenDates",
-        query = "SELECT COALESCE(SUM(nbr_enfant), 0) FROM mariage WHERE femme_id = :femmeId AND date_debut BETWEEN :d1 AND :d2"
+        query = "SELECT COALESCE(SUM(nbr_enfant), 0) FROM mariage WHERE femme_id = :femmeId AND date_debut BETWEEN :date1 AND :date2"
 )
+
 public class Mariage {
 
     @Id

@@ -12,7 +12,7 @@ public class Homme extends Personne {
     @OneToMany(mappedBy = "homme", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Mariage> mariages = new HashSet<>();
 
-    public Homme() {}
+    public Homme(String raiss, String ahmed, String number, LocalDate localDate) {}
 
     public Homme(String nom, String prenom, String telephone, String adresse, LocalDate dateNaissance) {
         super(nom, prenom, telephone, adresse, dateNaissance);
